@@ -3,4 +3,4 @@ Project for Parallel Computing course. Implementation of two algorithms using pa
 
 ## Authors
 * **Elia Mercatanti** - GitHub: [elia-mercatanti](https://github.com/elia-mercatanti)
-* **Marco Calamai** - GitHub: [-](https://github.com/-)
+* **Marco Calamai** - GitHub: [marcocalamai](https://github.com/marcocalamai)
