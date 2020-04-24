@@ -4,7 +4,7 @@ project(pc_project)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(pc_project src/sequential_kmeans.cpp src/openmp_kmeans.cpp src/openmp_kmeans.h
-        src/sequential_kmeans.h src/test.cpp src/point.h)
+        src/sequential_kmeans.h src/test.cpp src/point.h src/openmp2_kmeans.cpp src/openmp2_kmeans.h)
 
 find_package(OpenMP)
 if (OpenMP_CXX_FOUND)

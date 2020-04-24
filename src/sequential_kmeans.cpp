@@ -16,6 +16,46 @@ bool check_equal_clusters(std::vector<Point> dataset, std::vector<Point> old_dat
     return true;
 }
 
+void assignement(std::vector<Point> &dataset, std::vector<Point> &centroids, int num_clusters,
+                 const unsigned long num_points, const unsigned long num_dimensions, double min_distance,
+                 double distance, int cluster_id) {
+    for (auto i = 0; i < num_points; i++) {
+        min_distance = std::numeric_limits<double>::max();
+        for (auto j = 0; j < num_clusters; j++) {
+            distance = 0;
+            for (auto k = 0; k < num_dimensions; k++) {
+                distance += pow(dataset[i].dimensions[k] - centroids[j].dimensions[k], 2);
+            }
+            distance = sqrt(distance);
+
+            if (distance < min_distance) {
+                min_distance = distance;
+                cluster_id = j;
+            }
+        }
+        dataset[i].cluster_id = cluster_id;
+    }
+}
+
+void update_centroid(std::vector<Point> &dataset, std::vector<Point> &centroids, int num_clusters,
+                     const unsigned long num_points, const unsigned long num_dimensions, std::vector<int> &count) {
+    std::fill(count.begin(), count.end(), 0);
+    for (auto i = 0; i < num_clusters; i++) {
+        std::fill(centroids[i].dimensions.begin(), centroids[i].dimensions.end(), 0);
+    }
+    for (auto i = 0; i < num_points; i++) {
+        for (auto j = 0; j < num_dimensions; j++) {
+            centroids[dataset[i].cluster_id].dimensions[j] += dataset[i].dimensions[j];
+        }
+        count[dataset[i].cluster_id]++;
+    }
+    for (auto i = 0; i < num_clusters; i++) {
+        for (auto j = 0; j < num_dimensions; j++) {
+            centroids[i].dimensions[j] /= count[i];
+        }
+    }
+}
+
 std::tuple<std::vector<Point>, std::vector<Point>>
 sequential_kmeans(std::vector<Point> dataset, std::vector<Point> centroids, int num_clusters) {
 
@@ -31,39 +71,10 @@ sequential_kmeans(std::vector<Point> dataset, std::vector<Point> centroids, int 
     while (!convergence) {
 
         // Assignment phase, find the nearest centroid, assign the Point to that cluster.
-        for (auto i = 0; i < num_points; i++) {
-            min_distance = std::numeric_limits<double>::max();
-            for (auto j = 0; j < num_clusters; j++) {
-                distance = 0;
-                for (auto k = 0; k < num_dimensions; k++) {
-                    distance += pow(dataset[i].dimensions[k] - centroids[j].dimensions[k], 2);
-                }
-                distance = sqrt(distance);
-
-                if (distance < min_distance) {
-                    min_distance = distance;
-                    cluster_id = j;
-                }
-            }
-            dataset[i].cluster_id = cluster_id;
-        }
+        assignement(dataset, centroids, num_clusters, num_points, num_dimensions, min_distance, distance, cluster_id);
 
         // Update phase, find the nearest centroid, assign the Point to that cluster.
-        std::fill(count.begin(), count.end(), 0);
-        for (auto i = 0; i < num_clusters; i++) {
-            std::fill(centroids[i].dimensions.begin(), centroids[i].dimensions.end(), 0);
-        }
-        for (auto i = 0; i < num_points; i++) {
-            for (auto j = 0; j < num_dimensions; j++) {
-                centroids[dataset[i].cluster_id].dimensions[j] += dataset[i].dimensions[j];
-            }
-            count[dataset[i].cluster_id]++;
-        }
-        for (auto i = 0; i < num_clusters; i++) {
-            for (auto j = 0; j < num_dimensions; j++) {
-                centroids[i].dimensions[j] /= count[i];
-            }
-        }
+        update_centroid(dataset, centroids, num_clusters, num_points, num_dimensions, count);
 
         if (!first_iteration && check_equal_clusters(dataset, old_dataset, num_points)) {
             convergence = true;

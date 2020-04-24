@@ -1,6 +1,7 @@
 #include "point.h"
 #include "sequential_kmeans.h"
 #include "openmp_kmeans.h"
+#include "openmp2_kmeans.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -79,6 +80,22 @@ int main(int argc, char *argv[]) {
     // Measure execution time of Parallel K-Means with OpenMP.
     start = std::chrono::high_resolution_clock::now();
     std::tie(result_dataset, result_centroids) = openmp_kmeans(dataset, centroids, num_clusters);
+    finish = std::chrono::high_resolution_clock::now();
+
+    elapsed = finish - start;
+    std::cout << "Parallel K-Means With OpenMP Execution Time: " << elapsed.count() << " s\n";
+
+    // Print vector points
+    for (auto point : result_centroids) {
+        for (auto j = 0; j < num_dimensions; j++) {
+            std::cout << point.dimensions[j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    // Measure execution time of Parallel K-Means with OpenMP2.
+    start = std::chrono::high_resolution_clock::now();
+    std::tie(result_dataset, result_centroids) = openmp2_kmeans(dataset, centroids, num_clusters);
     finish = std::chrono::high_resolution_clock::now();
 
     elapsed = finish - start;
