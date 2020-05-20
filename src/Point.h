@@ -1,6 +1,8 @@
-//
-// Created by eliam on 18/04/2020.
-//
+/**
+ * @file point.h
+ * @brief Header file for the definition of Point struct.
+ * @authors Elia Mercatanti, Marco Calamai
+*/
 
 #ifndef PC_PROJECT_POINT_H
 #define PC_PROJECT_POINT_H
