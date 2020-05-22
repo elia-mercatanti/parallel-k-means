@@ -8,13 +8,16 @@
 #include "sequential_kmeans.h"
 #include "openmp_kmeans.h"
 #include "openmp2_kmeans.h"
+#include "cuda_runtime.h"
+#include "cuda_kmeans.cuh"
 #include <iostream>
 #include <vector>
-#include <array>
 #include <fstream>
 #include <sstream>
+#include <numeric>
 #include <random>
 #include <chrono>
+#include <algorithm>
 
 int main(int argc, char *argv[]) {
     // Check the number of parameters.
@@ -40,7 +43,8 @@ int main(int argc, char *argv[]) {
         double dimension_value;
         int points_read = 0;
 
-        std::cout << "- Dataset Loading -\n " << std::endl;
+        std::cout << "- Dataset Load -\n " << std::endl;
+        std::cout << "Reading in progress ..." << std::endl;
 
         // Get every points in the dataset.
         while (getline(dataset_file, file_line)) {
@@ -52,22 +56,18 @@ int main(int argc, char *argv[]) {
             }
             dataset.push_back(point);
             points_read++;
-            std::cout << "\rPoints Read: " << points_read << std::flush;
+
         }
         dataset_file.close();
-        std::cout << "\n" << std::endl;
+        std::cout << "Loading Done\n" << std::endl;
     } else {
         std::cerr << "Could not open file: " << argv[1] << std::endl;
         exit(EXIT_FAILURE);
     }
 
-    // Get the total number of points in the dataset and total dimensions for points.
-    const auto num_points = dataset.size();
-    const auto num_dimensions = dataset[0].dimensions.size();
-
     // Generate num_clusters random initial centroids.
     std::vector<Point> initial_centroids(num_clusters);
-    std::vector<int> random_vector(num_points);
+    std::vector<int> random_vector(dataset.size());
     std::iota(random_vector.begin(), random_vector.end(), 0);
     std::shuffle(random_vector.begin(), random_vector.end(), std::mt19937(std::random_device()()));
     for (auto i = 0; i < num_clusters; i++) {
@@ -88,6 +88,7 @@ int main(int argc, char *argv[]) {
     std::chrono::duration<double> elapsed = finish - start;
     std::cout << "Sequential K-Means Execution Time: " << elapsed.count() << " s\n" << std::endl;
 
+    /*
     // Print centroids
     for (const auto &centroid : final_centroids) {
         for (auto value : centroid.dimensions) {
@@ -96,6 +97,7 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
     }
     std::cout << std::endl;
+     */
 
     // Measure execution time of Parallel K-Means with OpenMP.
     start = std::chrono::high_resolution_clock::now();
@@ -106,6 +108,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Parallel K-Means With OpenMP (First Version) Execution Time: " << elapsed.count() << " s\n"
               << std::endl;
 
+    /*
     // Print centroids.
     for (const auto &centroid : final_centroids) {
         for (auto value : centroid.dimensions) {
@@ -114,6 +117,7 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
     }
     std::cout << std::endl;
+     */
 
     // Measure execution time of Parallel K-Means with OpenMP2.
     start = std::chrono::high_resolution_clock::now();
@@ -124,6 +128,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Parallel K-Means With OpenMP (Second Version) Execution Time: " << elapsed.count() << " s\n"
               << std::endl;
 
+    /*
     // Print centroids
     for (const auto &centroid : final_centroids) {
         for (auto value : centroid.dimensions) {
@@ -131,6 +136,7 @@ int main(int argc, char *argv[]) {
         }
         std::cout << std::endl;
     }
+     */
 
     return 0;
 }
