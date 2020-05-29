@@ -8,8 +8,8 @@
 #include "sequential_kmeans.h"
 #include "openmp_kmeans.h"
 #include "openmp2_kmeans.h"
-#include "cuda_runtime.h"
 #include "cuda_kmeans.cuh"
+#include "cuda_runtime.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -75,6 +75,17 @@ int main(int argc, char *argv[]) {
         initial_centroids[i].cluster_id = i;
     }
 
+    /*
+    // Print centroids
+    for (const auto &centroid : initial_centroids) {
+        for (auto value : centroid.dimensions) {
+            std::cout << value << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+     */
+
     // Results of K-Means.
     std::vector<Point> final_dataset, final_centroids;
 
@@ -96,12 +107,13 @@ int main(int argc, char *argv[]) {
         }
         std::cout << std::endl;
     }
-    std::cout << std::endl;
-     */
+    */
 
     // Measure execution time of Parallel K-Means with OpenMP.
     start = std::chrono::high_resolution_clock::now();
+    std::cout << std::endl;
     std::tie(final_dataset, final_centroids) = openmp_kmeans1(dataset, num_clusters, initial_centroids);
+    std::cout << std::endl;
     finish = std::chrono::high_resolution_clock::now();
 
     elapsed = finish - start;
@@ -137,6 +149,71 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
     }
      */
+
+    // CUDA
+    auto num_points = dataset.size();
+    auto num_dimensions = dataset[0].dimensions.size();
+    auto num_bytes_dataset = num_points * num_dimensions * sizeof(double);
+    auto num_bytes_centroids = num_clusters * num_dimensions * sizeof(double);
+    double *host_dataset, *host_centroids, *device_dataset, *device_centroids;
+    short *host_assignments;
+
+    host_dataset = (double *) malloc(num_bytes_dataset);
+    host_centroids = (double *) malloc(num_bytes_centroids);
+    host_assignments = (short *) malloc(num_points * sizeof(short));
+
+    // Dataset transformation.
+    for (auto i = 0; i < num_points; i++) {
+        for (auto j = 0; j < num_dimensions; j++) {
+            host_dataset[i * num_dimensions + j] = dataset[i].dimensions[j];
+        }
+    }
+
+    // Centroids transformation.
+    for (auto i = 0; i < num_clusters; i++) {
+        for (auto j = 0; j < num_dimensions; j++) {
+            host_centroids[i * num_dimensions + j] = initial_centroids[i].dimensions[j];
+        }
+    }
+
+    // Load arrays into the device.
+    cudaMalloc((void **) &device_dataset, num_bytes_dataset);
+    cudaMalloc((void **) &device_centroids, num_bytes_centroids);
+    cudaMemcpy(device_dataset, host_dataset, num_bytes_dataset, cudaMemcpyHostToDevice);
+    cudaMemcpy(device_centroids, host_centroids, num_bytes_centroids, cudaMemcpyHostToDevice);
+
+    // Measure execution time of Parallel K-Means with CUDA.
+    start = std::chrono::high_resolution_clock::now();
+    std::cout << std::endl;
+    std::tie(host_assignments, device_centroids) = cuda_kmeans(device_dataset, num_clusters, device_centroids,
+                                                               num_points, num_dimensions);
+    finish = std::chrono::high_resolution_clock::now();
+
+    elapsed = finish - start;
+    std::cout << "Parallel K-Means With CUDA Execution Time: " << elapsed.count() << std::endl;
+
+    cudaMemcpy(host_centroids, device_centroids, num_bytes_centroids, cudaMemcpyDeviceToHost);
+
+    /*
+    // Centroids transformation.
+    for (auto i = 0; i < num_clusters; i++) {
+        for (auto j = 0; j < num_dimensions; j++) {
+            std::cout << host_centroids[i * num_dimensions + j] << " ";
+        }
+        std::cout << std::endl;
+    }
+    */
+
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        printf("Error: %s\n", cudaGetErrorString(err));
+    }
+
+    cudaFree(device_dataset);
+    cudaFree(device_centroids);
+    free(host_dataset);
+    free(host_centroids);
+    free(host_assignments);
 
     return 0;
 }

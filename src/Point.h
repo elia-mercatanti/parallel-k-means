@@ -12,7 +12,7 @@
 // Structure for representing a Point of the dataset.
 struct Point {
     std::vector<double> dimensions;
-    int cluster_id{};
+    int cluster_id;
 };
 
 #endif //PC_PROJECT_POINT_H
