@@ -49,7 +49,7 @@ void update_centroids_openmp1(const std::vector<Point> &dataset, const int num_c
     }
 
     // Calculate the sums and total number of points in each cluster.
-#pragma omp for collapse(2)
+#pragma omp for
     for (auto i = 0; i < dataset.size(); i++) {
         for (auto j = 0; j < num_dimensions; j++) {
 #pragma omp atomic

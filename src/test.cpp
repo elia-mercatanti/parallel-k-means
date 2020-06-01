@@ -20,6 +20,43 @@
 #include <algorithm>
 
 int main(int argc, char *argv[]) {
+    if (argc == 1) {
+        std::string rand_dataset_name;
+        int num_points_rand[] = {1000, 10000, 100000, 1000000};
+        int num_dimensions_rand[] = {10, 100, 1000};
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> distribution(0.0, 1.0);
+
+        for (auto num_points: num_points_rand) {
+
+            for (auto num_dimensions: num_dimensions_rand) {
+
+                rand_dataset_name =
+                        "rand_dataset_" + std::to_string(num_points) + "x" + std::to_string(num_dimensions) +
+                        ".txt";
+
+                if (!(std::ifstream("../datasets/" + rand_dataset_name))) {
+                    std::ofstream rand_dataset_file("../datasets/" + rand_dataset_name);
+                    for (auto i = 0; i < num_points; i++) {
+                        for (auto j = 0; j < num_dimensions; j++) {
+                            rand_dataset_file << distribution(gen) << " ";
+                        }
+                        rand_dataset_file << "\n";
+                    }
+
+                    rand_dataset_file.close();
+
+                    std::cout << "Random Dataset Generated: " + std::to_string(num_points) + "x" +
+                                 std::to_string(num_dimensions) + "\n";
+
+                }
+            }
+        }
+        exit(0);
+    }
+
     // Check the number of parameters.
     if (argc != 3) {
         std::cerr << "Usage: pc_project.exe <data-file-path> <n. clusters>" << std::endl;
@@ -84,7 +121,7 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
     }
     std::cout << std::endl;
-     */
+    */
 
     // Results of K-Means.
     std::vector<Point> final_dataset, final_centroids;
@@ -93,7 +130,7 @@ int main(int argc, char *argv[]) {
 
     // Measure execution time of Sequential K-Means.
     auto start = std::chrono::high_resolution_clock::now();
-    std::tie(final_dataset, final_centroids) = sequential_kmeans(dataset, num_clusters, initial_centroids);
+    //std::tie(final_dataset, final_centroids) = sequential_kmeans(dataset, num_clusters, initial_centroids);
     auto finish = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed = finish - start;
@@ -107,12 +144,12 @@ int main(int argc, char *argv[]) {
         }
         std::cout << std::endl;
     }
-    */
+     */
 
     // Measure execution time of Parallel K-Means with OpenMP.
     start = std::chrono::high_resolution_clock::now();
     std::cout << std::endl;
-    std::tie(final_dataset, final_centroids) = openmp_kmeans1(dataset, num_clusters, initial_centroids);
+    //std::tie(final_dataset, final_centroids) = openmp_kmeans1(dataset, num_clusters, initial_centroids);
     std::cout << std::endl;
     finish = std::chrono::high_resolution_clock::now();
 
@@ -129,11 +166,11 @@ int main(int argc, char *argv[]) {
         std::cout << std::endl;
     }
     std::cout << std::endl;
-     */
+    */
 
     // Measure execution time of Parallel K-Means with OpenMP2.
     start = std::chrono::high_resolution_clock::now();
-    std::tie(final_dataset, final_centroids) = openmp_kmeans2(dataset, num_clusters, initial_centroids);
+    //std::tie(final_dataset, final_centroids) = openmp_kmeans2(dataset, num_clusters, initial_centroids);
     finish = std::chrono::high_resolution_clock::now();
 
     elapsed = finish - start;
@@ -204,13 +241,14 @@ int main(int argc, char *argv[]) {
     }
     */
 
+    cudaFree(device_dataset);
+    cudaFree(device_centroids);
+
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
         printf("Error: %s\n", cudaGetErrorString(err));
     }
 
-    cudaFree(device_dataset);
-    cudaFree(device_centroids);
     free(host_dataset);
     free(host_centroids);
     free(host_assignments);

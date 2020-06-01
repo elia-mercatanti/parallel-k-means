@@ -53,16 +53,16 @@ void print_device(short *device, int row, int col) {
 }
 
 __device__ double doubleAtomicAdd(double *address, double val) {
-    unsigned long long int *address_as_ull =
+    auto *address_as_ull =
             (unsigned long long int *) address;
     unsigned long long int old = *address_as_ull, assumed;
     do {
         assumed = old;
         old = atomicCAS(address_as_ull, assumed,
                         __double_as_longlong(val +
-                                             __longlong_as_double(assumed)));
+                                             __longlong_as_double((long long int) assumed)));
     } while (assumed != old);
-    return __longlong_as_double(old);
+    return __longlong_as_double((long long int) old);
 }
 
 /**
@@ -214,6 +214,32 @@ void initialize_assignments(short *device_assignments) {
 }
 */
 
+//Original compute sum with 2D grid (better with dataset with too much dimensions)
+__global__
+void
+compute_sum2(const double *deviceDataset, double *deviceCentroids, const short *deviceAssignment, int *deviceCount) {
+    unsigned int row = blockIdx.x * blockDim.x + threadIdx.x;
+    if (row < const_num_points) {
+        short clusterId = deviceAssignment[row];
+        for (auto i = 0; i < const_num_dimensions; i++) {
+            doubleAtomicAdd(&deviceCentroids[clusterId * const_num_dimensions + i],
+                            deviceDataset[row * const_num_dimensions + i]);
+        }
+        atomicAdd(&deviceCount[clusterId], 1);
+    }
+}
+
+//Update centroids with 1D grid (no need to divide count for point's dimensions)
+__global__
+void update_centroids2(double *deviceCentroids, const int *deviceCount) {
+    unsigned int col = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int row = blockIdx.y * blockDim.y + threadIdx.y;
+    if (col < const_num_dimensions && row < const_num_clusters) {
+        deviceCentroids[row * const_num_dimensions + col] /= deviceCount[row];
+
+    }
+}
+
 /**
     Parallel version of K-Means Algorithms using CUDA.
 
@@ -233,6 +259,7 @@ cuda_kmeans(double *device_dataset, const short num_clusters, double *device_cen
     short *device_old_assignments, *device_assignments, *host_old_assignments, *host_assignments;
     double *device_distances;
     int *device_count;
+    int count = 0;
 
     // Initialize dim grid block.
     dim3 dim_block_distances(2, 512, 1);
@@ -282,12 +309,15 @@ cuda_kmeans(double *device_dataset, const short num_clusters, double *device_cen
         cudaDeviceSynchronize();
 
         // Update phase, compute sums of every points in all clusters.
-        compute_sums<<<dim_grid_sums, dim_block_sums>>>(device_centroids, device_dataset, device_assignments,
+        //compute_sums<<<dim_grid_sums, dim_block_sums>>>(device_centroids, device_dataset, device_assignments,
+        //                                               device_count);
+        compute_sum2<<<ceil(num_points/1024.0), 1024>>>(device_dataset, device_centroids, device_assignments,
                                                         device_count);
         cudaDeviceSynchronize();
 
         // Update phase, calculate mean of all points assigned to that cluster, for all cluster.
-        update_centroids<<<dim_grid_centroids, dim_block_centroids>>>(device_centroids, device_count);
+        //update_centroids<<<dim_grid_centroids, dim_block_centroids>>>(device_centroids, device_count);
+        update_centroids2<<<dim_grid_centroids, dim_block_centroids>>>(device_centroids, device_count);
         cudaDeviceSynchronize();
 
         cudaMemcpy(host_assignments, device_assignments, num_points * sizeof(short),
@@ -295,23 +325,7 @@ cuda_kmeans(double *device_dataset, const short num_clusters, double *device_cen
         cudaMemcpy(host_old_assignments, device_old_assignments, num_points * sizeof(short),
                    cudaMemcpyDeviceToHost);
 
-        /*
-        // Centroids transformation.
-        for (auto i = 0; i < num_points; i++) {
-            std::cout << host_assignments[i] << " ";
-        }
-        std::cout << std::endl;
-
-        // Centroids transformation.
-        for (auto i = 0; i < num_points; i++) {
-            std::cout << host_old_assignments[i] << " ";
-        }
-        std::cout << std::endl;
-         */
-
-        //print_device(device_centroids, num_clusters, num_dimensions);
-        //print_device(device_assignments, num_points, 1);
-
+        count++;
 
         // Check if the convergence criterion has been reached.
         if (check_convergence(host_assignments, host_old_assignments, num_points)) {
@@ -321,6 +335,8 @@ cuda_kmeans(double *device_dataset, const short num_clusters, double *device_cen
                        cudaMemcpyDeviceToDevice);
         }
     }
+
+    std::cout << "Numero di iterazioni: " << count << " \n";
 
     return {host_assignments, device_centroids};
 }
