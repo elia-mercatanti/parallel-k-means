@@ -4,8 +4,8 @@ project(pc_project LANGUAGES CXX CUDA)
 set(CMAKE_CUDA_STANDARD 14)
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(pc_project src/sequential_kmeans.cpp src/openmp_kmeans.cpp src/openmp_kmeans.h
-        src/sequential_kmeans.h src/test.cpp src/point.h src/openmp2_kmeans.cpp src/openmp2_kmeans.h src/cuda_kmeans.cu src/cuda_kmeans.cuh)
+add_executable(pc_project src/sequential_kmeans.cpp src/kmeans_openmp.cpp src/kmeans_openmp.h
+        src/sequential_kmeans.h src/test.cpp src/point.h src/kmeans_cuda.cu src/kmeans_cuda.cuh)
 
 find_package(OpenMP)
 if (OpenMP_CXX_FOUND)

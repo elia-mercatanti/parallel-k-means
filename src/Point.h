@@ -1,6 +1,6 @@
 /**
+ * @brief Header file for the struct Point used to represents points and theirs dimensions.
  * @file point.h
- * @brief Header file for the definition of Point struct.
  * @authors Elia Mercatanti, Marco Calamai
 */
 

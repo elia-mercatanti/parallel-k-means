@@ -1,6 +1,6 @@
 /**
- * @file sequential_kmeans.h
  * @brief Header file for Sequential K-Means Algorithm.
+ * @file sequential_kmeans.h
  * @authors Elia Mercatanti, Marco Calamai
 */
 
@@ -14,7 +14,7 @@ bool check_convergence(const std::vector<Point> &dataset, const std::vector<Poin
 
 void update_centroids(const std::vector<Point> &dataset, int num_clusters, std::vector<Point> &centroids);
 
-double calculate_distance(const std::vector<double> &first_point, const std::vector<double> &second_point);
+double compute_distance(const std::vector<double> &first_point, const std::vector<double> &second_point);
 
 void points_assignment(std::vector<Point> &dataset, int num_clusters, const std::vector<Point> &centroids);
 
