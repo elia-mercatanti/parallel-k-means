@@ -11,3 +11,6 @@ cmake-build-*/
 /report/report.out
 /report/report.synctex.gz
 /report/report.tex
+
+### Directories ###
+slides/

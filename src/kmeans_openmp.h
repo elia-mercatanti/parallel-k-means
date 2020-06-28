@@ -4,8 +4,8 @@
  * @authors Elia Mercatanti, Marco Calamai
 */
 
-#ifndef PC_PROJECT_KMEANS_OPENMP_H
-#define PC_PROJECT_KMEANS_OPENMP_H
+#ifndef PARALLEL_K_MEANS_KMEANS_OPENMP_H
+#define PARALLEL_K_MEANS_KMEANS_OPENMP_H
 
 #include "point.h"
 #include <tuple>
@@ -22,4 +22,4 @@ void points_assignment_openmp(std::vector<Point> &dataset, int num_clusters, con
 std::tuple<std::vector<Point>, std::vector<Point>>
 kmeans_openmp(std::vector<Point> dataset, int num_clusters, std::vector<Point> centroids);
 
-#endif //PC_PROJECT_KMEANS_OPENMP_H
+#endif //PARALLEL_K_MEANS_KMEANS_OPENMP_H

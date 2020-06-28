@@ -65,7 +65,7 @@ void update_centroids(const std::vector<Point> &dataset, const int num_clusters,
     @param second_point: second point to be compared.
     @return distance: Euclidean distance between first and second point.
 */
-double compute_distance(const std::vector<double> &first_point, const std::vector<double> &second_point) {
+double calculate_distance(const std::vector<double> &first_point, const std::vector<double> &second_point) {
     double distance = 0;
     for (auto i = 0; i < first_point.size(); i++) {
         distance += pow(first_point[i] - second_point[i], 2);
@@ -87,7 +87,7 @@ void points_assignment(std::vector<Point> &dataset, const int num_clusters, cons
     for (auto i = 0; i < dataset.size(); i++) {
         min_distance = std::numeric_limits<double>::max();
         for (auto j = 0; j < num_clusters; j++) {
-            distance = compute_distance(dataset[i].dimensions, centroids[j].dimensions);
+            distance = calculate_distance(dataset[i].dimensions, centroids[j].dimensions);
             if (distance < min_distance) {
                 min_distance = distance;
                 cluster_id = centroids[j].cluster_id;

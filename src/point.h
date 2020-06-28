@@ -4,8 +4,8 @@
  * @authors Elia Mercatanti, Marco Calamai
 */
 
-#ifndef PC_PROJECT_POINT_H
-#define PC_PROJECT_POINT_H
+#ifndef PARALLEL_K_MEANS_POINT_H
+#define PARALLEL_K_MEANS_POINT_H
 
 #include <vector>
 
@@ -15,4 +15,4 @@ struct Point {
     int cluster_id;
 };
 
-#endif //PC_PROJECT_POINT_H
+#endif //PARALLEL_K_MEANS_POINT_H

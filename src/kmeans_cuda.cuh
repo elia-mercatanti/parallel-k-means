@@ -4,8 +4,8 @@
  * @authors Elia Mercatanti, Marco Calamai
 */
 
-#ifndef PC_PROJECT_KMEANS_CUDA_CUH
-#define PC_PROJECT_KMEANS_CUDA_CUH
+#ifndef PARALLEL_K_MEANS_KMEANS_CUDA_CUH
+#define PARALLEL_K_MEANS_KMEANS_CUDA_CUH
 
 #include "cuda_runtime.h"
 #include "point.h"
@@ -35,4 +35,4 @@ __host__ std::tuple<short *, double *>
 kmeans_cuda(const double *device_dataset, short num_clusters, double *device_centroids, int num_points,
             short num_dimensions);
 
-#endif //PC_PROJECT_KMEANS_CUDA_CUH
+#endif //PARALLEL_K_MEANS_KMEANS_CUDA_CUH
