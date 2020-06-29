@@ -64,7 +64,6 @@ void update_centroids_openmp(const std::vector<Point> &dataset, const int num_cl
 #pragma omp for collapse(2)
     for (auto i = 0; i < num_clusters; i++) {
         for (auto j = 0; j < num_dimensions; j++) {
-#pragma omp atomic
             centroids[i].dimensions[j] /= num_points_clusters[i];
         }
     }
