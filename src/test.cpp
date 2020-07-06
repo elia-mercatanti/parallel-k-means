@@ -121,9 +121,9 @@ int main(int argc, char *argv[]) {
     if (argc != 1 && argc != 3) {
         std::cerr
                 << "Usage:\n"
-                << "- pc_project.exe <dataset file path> <number of clusters> : "
+                << "- parallel_kmeans.exe <dataset file path> <number of clusters> : "
                 << "For testing K-Means algorithm with various implementations.\n"
-                << "- pc_project.exe <> : For generating random datasets according to global variables.\n";
+                << "- parallel_kmeans.exe <> : For generating random datasets according to global variables.\n";
         exit(EXIT_FAILURE);
     }
 
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
         exit(EXIT_SUCCESS);
     }
 
-    std::cout << "< PC Project - Testing OpenMP and CUDA implementation of the K-Means algorithm >\n\n";
+    std::cout << "< Parallel K-Means - Testing OpenMP and CUDA implementation of the K-Means algorithm >\n\n";
 
     // Get number of clusters to search.
     const auto num_clusters = std::strtol(argv[2], nullptr, 0);
