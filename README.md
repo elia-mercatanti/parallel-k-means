@@ -3,7 +3,7 @@ Project for Parallel Computing course. Sequential and parallel implementations o
 and CUDA. The sequential K-Means version is compared with two parallel versions, tests include execution times and the 
 speedup of each version.
 
-More information can be found in the report of the project [Report](https://github.com/elia-mercatanti/parallel-bigrams/blob/master/report/report.pdf).
+More information can be found in the report of the project [Report](https://github.com/elia-mercatanti/parallel-k-means/blob/master/report/report.pdf).
 
 ## Installation
 
