@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
         std::cerr
                 << "Usage:\n"
                 << "- parallel_kmeans.exe <dataset file path> <number of clusters> : "
-                << "For testing K-Means algorithm with various implementations.\n"
+                << "For testing K-Means algorithm with all implementations to search clusters on a dataset.\n"
                 << "- parallel_kmeans.exe <> : For generating random datasets according to global variables.\n";
         exit(EXIT_FAILURE);
     }
